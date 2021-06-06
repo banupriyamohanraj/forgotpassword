@@ -5,6 +5,7 @@ const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 var jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 
 const dbURL = process.env.DB_URL || 'mongodb://127.0.0.1:27017'
 
@@ -18,16 +19,27 @@ var transporter = nodemailer.createTransport({
 
 router.post("/passwordreset", async (req, res) => {
     try {
+        
+
+
         let client = await MongoClient.connect(dbURL);
         let db = await client.db('user');
         let data = await db.collection("logininfo").findOne({ email: req.body.email })
         if (data) {
             console.log(data)
+            crypto.randomBytes(32,(err,buffer)=>{
+                if(err){
+                    console.log(err)
+                }else{
+                    const resetToken = buffer.toString("hex")
+                    console.log(resetToken)
+                    // req.body.resetToken = token;
+        //    data.expireToken = Date.now()+ 3600000
             var mailOptions = {
                 from: "nodemailera91@gmail.com",
                 to:  req.body.email,
                 subject: "Password Reset Link ",
-                text: "Please click the below link"
+                html: `<h4>Please click on this <a href="http://localhost:3000/${resetToken}">link</a> to reset password</h4>`
             }
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
@@ -37,6 +49,9 @@ router.post("/passwordreset", async (req, res) => {
                 }
             })
             res.status(200).json({message : "Email sent to user successfully"})
+                }
+            })
+           
         } else {
             res.status(404).json({ message: "User not registered" })
         }
