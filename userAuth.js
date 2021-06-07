@@ -41,7 +41,7 @@ router.put("/passwordreset", async (req, res) => {
                 from: "nodemailera91@gmail.com",
                 to:  req.body.email,
                 subject: "Password Reset Link ",
-                html: `<h4>Please click on this <a href="https://wd-node-task-5.netlify.app/${token}">link</a> to reset password</h4>`
+                html: `<h4>Please click on this <a href="https://wd-node-task-5.netlify.app/resetpassword/${token}">link</a> to reset password</h4>`
             }
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
